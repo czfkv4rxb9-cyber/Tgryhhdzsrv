@@ -1,4 +1,4 @@
-const SHELL_CACHE = 'pocket-python-shell-v5';
+const SHELL_CACHE = 'pocket-python-shell-v6';
 const RUNTIME_CACHE = 'pocket-python-runtime-v3';
 const KEEP = [SHELL_CACHE, RUNTIME_CACHE];
 

@@ -232,6 +232,87 @@
   #moremenu button:hover{background:var(--color-accent-900); color:var(--color-text);}
   #moremenu .ph{font-size:16px;}
 
+  /* ---------- поделиться: модальное окно и полоса наблюдателя ---------- */
+  #shade[hidden], #sharesheet[hidden], #viewerbar[hidden], #liverow[hidden]{display:none;}
+  #shade{position:fixed; inset:0; background:rgba(10,11,18,.68); z-index:60;}
+  #sharesheet{
+    position:fixed; z-index:61;
+    left:50%; top:50%; transform:translate(-50%,-50%);
+    width:min(440px, calc(100vw - 28px));
+    max-height:min(560px, calc(100vh - 56px));
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
+    display:flex; flex-direction:column; gap:19.6px;
+    padding:19.6px;
+    background:var(--color-surface);
+    border:1px solid var(--color-line-strong);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-lg);
+  }
+  .sheet-head{display:flex; align-items:center; gap:8.4px;}
+  .sheet-head h2{
+    flex:1; margin:0;
+    font-size:15px; font-weight:600; letter-spacing:-.01em;
+    color:var(--color-text);
+  }
+  .sheet-sec{display:flex; flex-direction:column; gap:8.4px;}
+  .sheet-sec + .sheet-sec{border-top:1px solid var(--color-line); padding-top:16.8px;}
+  .sheet-kicker{
+    font-size:10.5px; font-weight:600; letter-spacing:.09em; text-transform:uppercase;
+    color:var(--color-accent-kicker);
+  }
+  .sheet-note{font-size:12px; line-height:1.55; color:var(--color-muted); margin:0;}
+  .sheet-note:empty{display:none;}
+  .sheet-row{display:flex; gap:5.6px; align-items:center;}
+  .sheet-row .btn{flex:0 0 auto;}
+  .linkbox{
+    flex:1 1 auto; min-width:0;
+    background:var(--color-bg-deep);
+    border:1px solid var(--color-line-strong);
+    border-radius:var(--radius);
+    color:var(--color-text-3);
+    font-family:var(--font-mono);
+    font-size:12px;
+    padding:7px 9.8px;
+  }
+  .linkbox:focus{outline:none; border-color:var(--color-accent-700);}
+  #livestatus{
+    display:flex; align-items:center; gap:7px;
+    font-size:12.5px; line-height:1.5; color:var(--color-text-3);
+  }
+  .live-dot{
+    width:7px; height:7px; border-radius:50%; flex-shrink:0;
+    background:var(--color-muted-2);
+  }
+  .live-dot.on{
+    background:var(--color-accent);
+    box-shadow:0 0 0 3px rgba(145,132,217,.2), 0 0 10px rgba(145,132,217,.75);
+  }
+  /* Трансляция включена — даёт понять это, не открывая окно. */
+  #shareBtn.live{border-color:var(--color-accent); color:var(--color-accent-200);}
+  #shareBtn.live .ph{color:var(--color-accent);}
+
+  #viewerbar{
+    display:flex; align-items:center; gap:11.2px;
+    padding:8.4px 16.8px;
+    padding-left:calc(16.8px + env(safe-area-inset-left));
+    padding-right:calc(16.8px + env(safe-area-inset-right));
+    background:var(--color-accent-900);
+    border-bottom:1px solid var(--color-accent-700);
+    flex-shrink:0;
+  }
+  #viewerstatus{
+    flex:1 1 auto; min-width:0;
+    font-size:12.5px; color:var(--color-accent-200);
+  }
+  #viewerbar .btn{border-color:var(--color-accent-700); color:var(--color-accent-200);}
+
+  /* Наблюдатель смотрит, а не правит: всё, что меняет код, убрано. */
+  body.viewing #run, body.viewing #aicheck, body.viewing #keyBtn,
+  body.viewing #openBtn, body.viewing #shareBtn,
+  body.viewing #moremenu button[data-act="open"],
+  body.viewing #moremenu button[data-act="key"],
+  body.viewing #moremenu button[data-act="share"]{display:none;}
+
   /* ---------- layout ---------- */
   #main{flex:1; display:flex; min-height:0;}
   #editor-pane{
@@ -512,7 +593,7 @@
     #toolbar{padding:8.4px 14px; padding-top:calc(8.4px + env(safe-area-inset-top)); gap:8.4px;}
     #brand{display:none;}
     #filechip{border-left:none; padding-left:0;}
-    #openBtn, #saveBtn, #keyBtn{display:none;}
+    #openBtn, #saveBtn, #keyBtn, #shareBtn{display:none;}
     #moreBtn{display:flex;}
     #moreBtn, #aicheck{width:32px; height:32px; padding:0; justify-content:center;}
     #aicheck .lbl{display:none;}
@@ -531,6 +612,8 @@
     #console{font-size:14px; padding:14px;}
     #graphics-wrap{padding:14px;}
     #zoom-controls{right:26px; bottom:26px;}
+    #sharesheet{width:calc(100vw - 22px); padding:16.8px; gap:16.8px;}
+    #viewerbar{padding-left:calc(14px + env(safe-area-inset-left)); padding-right:calc(14px + env(safe-area-inset-right));}
 
     #keybar{
       display:none;
@@ -596,6 +679,7 @@
   <button class="btn" id="openBtn"><i class="ph ph-folder-open" aria-hidden="true"></i>Открыть</button>
   <button class="btn" id="saveBtn"><i class="ph ph-download-simple" aria-hidden="true"></i>Сохранить</button>
   <button class="btn btn-icon" id="keyBtn" title="API-ключ OpenRouter" aria-label="API-ключ OpenRouter"><i class="ph ph-key" aria-hidden="true"></i></button>
+  <button class="btn" id="shareBtn" title="Поделиться" aria-label="Поделиться"><i class="ph ph-share-network" aria-hidden="true"></i>Поделиться</button>
   <button class="btn btn-ai" id="aicheck"><i class="ph ph-sparkle" aria-hidden="true"></i><span class="lbl">Проверить с ИИ</span></button>
   <button class="btn btn-run" id="run"><i class="ph-fill ph-play" aria-hidden="true"></i>Запустить</button>
   <!-- Открыть/Сохранить collapse into this on phones, per the redesign. -->
@@ -605,7 +689,15 @@
 <div id="moremenu" hidden>
   <button data-act="open"><i class="ph ph-folder-open" aria-hidden="true"></i>Открыть</button>
   <button data-act="save"><i class="ph ph-download-simple" aria-hidden="true"></i>Сохранить</button>
+  <button data-act="share"><i class="ph ph-share-network" aria-hidden="true"></i>Поделиться</button>
   <button data-act="key"><i class="ph ph-key" aria-hidden="true"></i>API-ключ</button>
+</div>
+
+<!-- Видна только тому, кто открыл чужую ссылку живого показа. -->
+<div id="viewerbar" hidden>
+  <span class="live-dot" id="viewerdot"></span>
+  <span id="viewerstatus">Подключаемся…</span>
+  <button class="btn" id="forkBtn"><i class="ph ph-copy" aria-hidden="true"></i>Открыть как свою копию</button>
 </div>
 
 <div id="main">
@@ -668,6 +760,41 @@
 <script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
 <script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.js"></script>
 <script crossorigin="anonymous" src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<div id="shade" hidden></div>
+<div id="sharesheet" hidden role="dialog" aria-modal="true" aria-labelledby="sharetitle">
+  <div class="sheet-head">
+    <h2 id="sharetitle">Поделиться кодом</h2>
+    <button class="btn btn-icon" id="sheetClose" title="Закрыть" aria-label="Закрыть"><i class="ph ph-x" aria-hidden="true"></i></button>
+  </div>
+
+  <div class="sheet-sec">
+    <span class="sheet-kicker">Живой показ</span>
+    <p class="sheet-note">Учитель открывает ссылку и видит, что вы печатаете, прямо сейчас. Работает, пока эта страница открыта у вас и у него.</p>
+    <div id="livestatus"><span class="live-dot" id="livedot"></span><span id="livetext">Показ выключен.</span></div>
+    <div class="sheet-row">
+      <button class="btn" id="liveBtn"><i class="ph ph-broadcast" aria-hidden="true"></i><span class="lbl">Начать показ</span></button>
+    </div>
+    <div class="sheet-row" id="liverow" hidden>
+      <input class="linkbox" id="livelink" readonly spellcheck="false">
+      <button class="btn btn-icon" id="liveCopy" title="Скопировать ссылку" aria-label="Скопировать ссылку"><i class="ph ph-copy" aria-hidden="true"></i></button>
+      <button class="btn btn-icon" id="liveSend" title="Отправить" aria-label="Отправить" hidden><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
+  <div class="sheet-sec">
+    <span class="sheet-kicker">Ссылка-снимок</span>
+    <p class="sheet-note">Код лежит внутри самой ссылки. Работает всегда, но учитель увидит код таким, каким он был в момент отправки.</p>
+    <div class="sheet-row">
+      <input class="linkbox" id="snaplink" readonly spellcheck="false">
+      <button class="btn btn-icon" id="snapCopy" title="Скопировать ссылку" aria-label="Скопировать ссылку"><i class="ph ph-copy" aria-hidden="true"></i></button>
+      <button class="btn btn-icon" id="snapSend" title="Отправить" aria-label="Отправить" hidden><i class="ph ph-paper-plane-tilt" aria-hidden="true"></i></button>
+    </div>
+    <p class="sheet-note" id="snapnote"></p>
+  </div>
+
+  <p class="sheet-note">Любой, у кого есть ссылка, увидит ваш код — отправляйте её только тем, кому доверяете.</p>
+</div>
+
 <script>
 // ---------- editor ----------
 const WORDS = [
@@ -805,6 +932,7 @@ moreMenu.onclick = (e) => {
   if(btn.dataset.act === 'open') openBtn.click();
   else if(btn.dataset.act === 'save') saveBtn.click();
   else if(btn.dataset.act === 'key') askApiKey();
+  else if(btn.dataset.act === 'share') openSheet();
 };
 document.addEventListener('click', (e) => {
   if(!moreMenu.hidden && !moreMenu.contains(e.target)) closeMore();
@@ -1912,9 +2040,533 @@ window.addEventListener('orientationchange', () => {
   setTimeout(() => { cm.refresh(); resizeCanvas(); }, 250);
 });
 
+
+// ---------- поделиться: ссылка-снимок и живой показ ----------
+// Два разных вопроса — два разных ответа. Снимок несёт код внутри самой
+// ссылки: ни сервера, ни второго человека в сети не нужно. Живой показ
+// требует связи между двумя браузерами — это WebRTC через публичный
+// посредник PeerJS: он бесплатен и не требует регистрации, а код идёт
+// напрямую между браузерами, через их сервер проходит только знакомство.
+const PEERJS_SRC = 'https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
+const SHARE_ID_KEY = 'pp-share-id';
+const SHARE_LIVE_KEY = 'pp-share-live';
+const PUMP_MS = 350;
+// Через TURN на портах 80/443 связь проходит даже там, где UDP закрыт
+// наглухо; ретранслятор видит только шифрованный DTLS, не код.
+const ICE = {iceServers:[
+  {urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302']},
+  {urls:['turn:openrelay.metered.ca:80','turn:openrelay.metered.ca:443','turns:openrelay.metered.ca:443'],
+   username:'openrelayproject', credential:'openrelayproject'}
+]};
+const DIAL_TIMEOUT_MS = 20000;
+const MAX_CON_LINES = 400;
+const MAX_OPS = 50000;
+
+const shareBtn = document.getElementById('shareBtn');
+const shadeEl = document.getElementById('shade');
+const sheetEl = document.getElementById('sharesheet');
+const sheetClose = document.getElementById('sheetClose');
+const liveBtn = document.getElementById('liveBtn');
+const liveDot = document.getElementById('livedot');
+const liveText = document.getElementById('livetext');
+const liveRow = document.getElementById('liverow');
+const liveLink = document.getElementById('livelink');
+const liveCopy = document.getElementById('liveCopy');
+const liveSend = document.getElementById('liveSend');
+const snapLink = document.getElementById('snaplink');
+const snapCopy = document.getElementById('snapCopy');
+const snapSend = document.getElementById('snapSend');
+const snapNote = document.getElementById('snapnote');
+const viewerBar = document.getElementById('viewerbar');
+const viewerDot = document.getElementById('viewerdot');
+const viewerStatus = document.getElementById('viewerstatus');
+const forkBtn = document.getElementById('forkBtn');
+
+let peer = null;              // общий для обеих ролей: в сессии роль только одна
+let watchers = new Set();     // ведущий: открытые соединения учителей
+let watchConn = null;         // наблюдатель: соединение с учеником
+let watchHostId = null;
+let retryTimer = null;
+let dialTimer = null;
+let pumpTimer = null;
+let idRetried = false;
+let isViewer = false;
+let applyingRemote = false;
+let sent = {code:null, name:null, con:null, ops:0, bg:null, tab:null};
+
+// --- упаковка кода в ссылку ---
+function b64url(bytes){
+  let s = '';
+  for(let i = 0; i < bytes.length; i += 0x8000){
+    s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  }
+  return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function unb64url(str){
+  const s = atob(str.replace(/-/g,'+').replace(/_/g,'/'));
+  const out = new Uint8Array(s.length);
+  for(let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
+  return out;
+}
+async function packCode(code){
+  const bytes = new TextEncoder().encode(code);
+  // deflate укорачивает ссылку в несколько раз, но есть не везде (iOS 16.4+),
+  // поэтому первый символ говорит, как читать остальное.
+  if(typeof CompressionStream === 'function'){
+    try{
+      const stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+      const buf = await new Response(stream).arrayBuffer();
+      return 'z' + b64url(new Uint8Array(buf));
+    }catch(e){}
+  }
+  return 'p' + b64url(bytes);
+}
+async function unpackCode(payload){
+  const kind = payload.slice(0,1);
+  const body = unb64url(payload.slice(1));
+  if(kind === 'p') return new TextDecoder().decode(body);
+  if(kind !== 'z') throw new Error('неизвестный формат ссылки');
+  if(typeof DecompressionStream !== 'function') throw new Error('браузер не умеет распаковывать');
+  const stream = new Blob([body]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+  const buf = await new Response(stream).arrayBuffer();
+  return new TextDecoder().decode(buf);
+}
+function baseUrl(){ return location.origin + location.pathname; }
+
+async function copyText(value, btn){
+  let ok = false;
+  try{
+    await navigator.clipboard.writeText(value);
+    ok = true;
+  }catch(e){
+    // Safari отдаёт буфер только из обработчика жеста; старый путь надёжнее.
+    try{
+      const ta = document.createElement('textarea');
+      ta.value = value;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+    }catch(e2){}
+  }
+  if(btn){
+    const ic = btn.querySelector('i');
+    if(ic){
+      const was = ic.className;
+      ic.className = ok ? 'ph ph-check' : 'ph ph-warning';
+      setTimeout(() => { ic.className = was; }, 1200);
+    }
+  }
+  return ok;
+}
+function wireSend(btn, getUrl){
+  if(!navigator.share) return;
+  btn.hidden = false;
+  btn.onclick = () => {
+    const url = getUrl();
+    if(!url) return;
+    // Системное «Поделиться»: получателя выбирает человек, а не страница.
+    navigator.share({title:'Pocket Python', url}).catch(()=>{});
+  };
+}
+
+// --- окно «Поделиться» ---
+async function refreshSnapLink(){
+  snapLink.value = 'готовим ссылку…';
+  snapNote.textContent = '';
+  try{
+    const url = baseUrl() + '#code=' + await packCode(cm.getValue()) +
+                '&n=' + encodeURIComponent(currentFileName);
+    snapLink.value = url;
+    if(url.length > 7000){
+      snapNote.textContent = 'Ссылка длинная (' + url.length +
+        ' символов) — некоторые мессенджеры её обрежут. Тогда лучше живой показ.';
+    }
+  }catch(e){
+    snapLink.value = '';
+    snapNote.textContent = 'Не удалось упаковать код в ссылку: ' + e.message;
+  }
+}
+function openSheet(){
+  closeMore();
+  shadeEl.hidden = false;
+  sheetEl.hidden = false;
+  refreshSnapLink();
+}
+function closeSheet(){
+  shadeEl.hidden = true;
+  sheetEl.hidden = true;
+}
+shareBtn.onclick = openSheet;
+sheetClose.onclick = closeSheet;
+shadeEl.onclick = closeSheet;
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape' && !sheetEl.hidden) closeSheet();
+});
+snapCopy.onclick = () => copyText(snapLink.value, snapCopy);
+liveCopy.onclick = () => copyText(liveLink.value, liveCopy);
+wireSend(snapSend, () => snapLink.value);
+wireSend(liveSend, () => liveLink.value);
+
+// --- общее: загрузка PeerJS ---
+let peerPromise = null;
+function loadPeerJS(){
+  if(window.Peer) return Promise.resolve();
+  if(peerPromise) return peerPromise;
+  peerPromise = new Promise((resolve, reject) => {
+    const sc = document.createElement('script');
+    sc.src = PEERJS_SRC;
+    sc.crossOrigin = 'anonymous';
+    sc.onload = () => resolve();
+    sc.onerror = () => { peerPromise = null; reject(new Error('нет связи с CDN')); };
+    document.head.appendChild(sc);
+  });
+  return peerPromise;
+}
+
+// --- ведущий (ученик) ---
+function myShareId(){
+  let id = null;
+  try{ id = localStorage.getItem(SHARE_ID_KEY); }catch(e){}
+  if(!/^pp[a-z0-9]{10,}$/.test(id || '')){
+    id = 'pp' + Math.random().toString(36).slice(2,8) + Date.now().toString(36).slice(-6);
+    try{ localStorage.setItem(SHARE_ID_KEY, id); }catch(e){}
+  }
+  return id;
+}
+function setLive(on, text){
+  liveDot.classList.toggle('on', !!on);
+  liveText.textContent = text;
+  shareBtn.classList.toggle('live', !!on);
+}
+function paintWatchers(){
+  const n = [...watchers].filter(c => c.open).length;
+  if(n) setLive(true, 'Показ идёт · смотрят: ' + n);
+  else if(watchers.size) setLive(true, 'Показ идёт · кто-то подключается…');
+  else setLive(true, 'Показ идёт · пока никто не смотрит');
+}
+function activeTab(){ return graphicsWrap.classList.contains('active') ? 'graphics' : 'console'; }
+
+// Экран консоли и есть источник правды: пересобрать из него дешевле, чем
+// дублировать каждую строку в отдельный массив.
+function snapshotConsole(){
+  const out = [];
+  const kids = consoleEl.children;
+  const from = Math.max(0, kids.length - MAX_CON_LINES);
+  for(let i = from; i < kids.length; i++){
+    const el = kids[i];
+    const span = el.querySelector('span');
+    const ic = el.querySelector('i');
+    out.push([span ? span.textContent : el.textContent,
+              el.className.replace(/\bhas-icon\b/,'').trim(),
+              ic ? ic.className : '']);
+  }
+  return out;
+}
+function bcast(msg){
+  for(const c of watchers){
+    if(c.open){ try{ c.send(msg); }catch(e){} }
+  }
+}
+function fullDrawMsg(){
+  return {t:'draw', bg, tab:activeTab(), ops:drawOps.slice(-MAX_OPS)};
+}
+function sendAll(conn){
+  try{
+    conn.send({t:'code', code:cm.getValue(), name:currentFileName});
+    conn.send({t:'con', lines:snapshotConsole()});
+    conn.send(fullDrawMsg());
+  }catch(e){}
+}
+// Опрос вместо десятка врезок в чужой код: сравнение строки раз в треть
+// секунды ничего не стоит, а отправляется только то, что изменилось.
+function pump(){
+  if(!watchers.size) return;
+  const code = cm.getValue();
+  if(code !== sent.code || currentFileName !== sent.name){
+    sent.code = code; sent.name = currentFileName;
+    bcast({t:'code', code, name:currentFileName});
+  }
+  const lines = snapshotConsole();
+  const conJson = JSON.stringify(lines);
+  if(conJson !== sent.con){
+    sent.con = conJson;
+    bcast({t:'con', lines});
+  }
+  const tab = activeTab();
+  if(bg !== sent.bg || drawOps.length < sent.ops){
+    sent.bg = bg; sent.ops = drawOps.length; sent.tab = tab;
+    bcast(fullDrawMsg());
+  } else if(drawOps.length > sent.ops){
+    // Рисунок только дорос — досылаем хвост, а не весь холст заново.
+    bcast({t:'ops', ops:drawOps.slice(sent.ops), tab});
+    sent.ops = drawOps.length; sent.tab = tab;
+  } else if(tab !== sent.tab){
+    sent.tab = tab;
+    bcast({t:'tab', which:tab});
+  }
+}
+function startPump(){
+  if(pumpTimer) return;
+  pumpTimer = setInterval(pump, PUMP_MS);
+}
+function stopPump(){
+  if(pumpTimer){ clearInterval(pumpTimer); pumpTimer = null; }
+}
+function onWatcher(conn){
+  watchers.add(conn);
+  conn.on('open', () => {
+    sent = {code:null, name:null, con:null, ops:0, bg:null, tab:null};
+    sendAll(conn);
+    paintWatchers();
+  });
+  conn.on('data', (msg) => {
+    // Единственная просьба, которую понимает ведущий: «пришли всё заново».
+    if(msg && msg.t === 'sync') sendAll(conn);
+  });
+  conn.on('close', () => { watchers.delete(conn); paintWatchers(); });
+  conn.on('error', () => { watchers.delete(conn); paintWatchers(); });
+}
+async function startLive(){
+  liveBtn.disabled = true;
+  setLive(false, 'Подключаемся…');
+  try{
+    await loadPeerJS();
+  }catch(e){
+    setLive(false, 'Не удалось загрузить модуль связи. Проверьте интернет — или отправьте ссылку-снимок.');
+    liveBtn.disabled = false;
+    return;
+  }
+  try{ localStorage.setItem(SHARE_LIVE_KEY, '1'); }catch(e){}
+  peer = new Peer(myShareId(), {debug:0, config:ICE});
+  peer.on('open', (id) => {
+    idRetried = false;
+    liveLink.value = baseUrl() + '#watch=' + id;
+    liveRow.hidden = false;
+    liveBtn.disabled = false;
+    liveBtn.querySelector('.lbl').textContent = 'Остановить показ';
+    paintWatchers();
+    startPump();
+  });
+  peer.on('connection', onWatcher);
+  peer.on('error', (err) => {
+    const type = err && err.type;
+    if(type === 'unavailable-id' && !idRetried){
+      // Прошлая вкладка ещё держит этот номер — берём новый, но ссылка меняется.
+      idRetried = true;
+      try{ localStorage.removeItem(SHARE_ID_KEY); }catch(e){}
+      try{ peer.destroy(); }catch(e){}
+      setLive(false, 'Номер был занят — выдаём новую ссылку…');
+      setTimeout(startLive, 400);
+      return;
+    }
+    liveBtn.disabled = false;
+    setLive(false, 'Связь не установилась (' + (type || 'ошибка') + '). Попробуйте ещё раз или отправьте ссылку-снимок.');
+  });
+  peer.on('disconnected', () => {
+    setLive(true, 'Соединение потеряно, восстанавливаем…');
+    try{ peer.reconnect(); }catch(e){}
+  });
+}
+function stopLive(){
+  try{ localStorage.removeItem(SHARE_LIVE_KEY); }catch(e){}
+  stopPump();
+  for(const c of watchers){ try{ c.close(); }catch(e){} }
+  watchers.clear();
+  if(peer){ try{ peer.destroy(); }catch(e){} peer = null; }
+  liveRow.hidden = true;
+  liveBtn.disabled = false;
+  liveBtn.querySelector('.lbl').textContent = 'Начать показ';
+  setLive(false, 'Показ выключен.');
+}
+liveBtn.onclick = () => { if(peer && !isViewer) stopLive(); else startLive(); };
+
+// --- наблюдатель (учитель) ---
+function setViewerStatus(text, on){
+  viewerStatus.textContent = text;
+  viewerDot.classList.toggle('on', !!on);
+}
+function enterViewer(){
+  isViewer = true;
+  document.body.classList.add('viewing');
+  viewerBar.hidden = false;
+  cm.setOption('readOnly', true);
+}
+// Данные приходят из чужого браузера: класс и иконку пускаем только
+// безобидной формы, текст всюду вставляется как текст.
+function safeCls(v){ return /^[\w\- ]{0,60}$/.test(v || '') ? (v || '') : ''; }
+function applyCode(code, name){
+  if(typeof code !== 'string') return;
+  if(typeof name === 'string' && name && name !== currentFileName) setFileName(name);
+  if(cm.getValue() === code) return;
+  const scroll = cm.getScrollInfo();
+  applyingRemote = true;
+  cm.setValue(code);
+  applyingRemote = false;
+  cm.scrollTo(scroll.left, scroll.top);
+  clearAiMarks();
+  setDirty(false);
+}
+let lastConJson = null;
+function applyConsole(lines){
+  if(!Array.isArray(lines)) return;
+  const json = JSON.stringify(lines);
+  if(json === lastConJson) return;
+  lastConJson = json;
+  clearConsole();
+  for(const l of lines){
+    if(!Array.isArray(l)) continue;
+    logLine(String(l[0] == null ? '' : l[0]), safeCls(l[1]), safeCls(l[2]) || undefined);
+  }
+}
+function wantTab(which){
+  if(which !== 'console' && which !== 'graphics') return;
+  if(activeTab() !== which || document.body.classList.contains('view-code')) showTab(which);
+}
+function onData(msg){
+  if(!msg || typeof msg !== 'object') return;
+  if(msg.t === 'code'){
+    applyCode(msg.code, msg.name);
+  } else if(msg.t === 'con'){
+    applyConsole(msg.lines);
+  } else if(msg.t === 'draw'){
+    if(typeof msg.bg === 'string') bg = msg.bg;
+    drawOps = Array.isArray(msg.ops) ? msg.ops.slice(0, MAX_OPS) : [];
+    scaleV = 1; offX = 0; offY = 0;
+    render();
+    if(msg.tab) wantTab(msg.tab);
+  } else if(msg.t === 'ops'){
+    if(Array.isArray(msg.ops)){
+      for(const op of msg.ops){
+        if(drawOps.length >= MAX_OPS) break;
+        drawOps.push(op);
+      }
+      render();
+    }
+    if(msg.tab) wantTab(msg.tab);
+  } else if(msg.t === 'tab'){
+    wantTab(msg.which);
+  }
+}
+function dial(){
+  if(watchConn){ try{ watchConn.close(); }catch(e){} }
+  watchConn = peer.connect(watchHostId, {reliable:true});
+  // Бывает, что знакомство прошло, а канал так и не открылся — сеть
+  // режет WebRTC. Молча ждать в таком случае нельзя.
+  clearTimeout(dialTimer);
+  dialTimer = setTimeout(() => {
+    if(watchConn && !watchConn.open){
+      setViewerStatus('Канал не открылся — похоже, сеть блокирует связь. Попросите ученика прислать ссылку-снимок.', false);
+      scheduleRetry(15000);
+    }
+  }, DIAL_TIMEOUT_MS);
+  watchConn.on('open', () => {
+    clearTimeout(dialTimer);
+    setViewerStatus('Подключено · видно всё, что печатает ученик', true);
+    try{ watchConn.send({t:'sync'}); }catch(e){}
+  });
+  watchConn.on('data', onData);
+  watchConn.on('close', () => {
+    setViewerStatus('Связь прервалась — ждём ученика…', false);
+    scheduleRetry();
+  });
+  watchConn.on('error', () => {});
+}
+function scheduleRetry(delay){
+  if(!isViewer) return;
+  clearTimeout(retryTimer);
+  retryTimer = setTimeout(() => {
+    if(peer && !peer.destroyed && peer.open) dial();
+  }, delay || 4000);
+}
+function startWatch(hostId){
+  watchHostId = hostId;
+  enterViewer();
+  setViewerStatus('Подключаемся к ученику…', false);
+  loadPeerJS().then(() => {
+    peer = new Peer({debug:0, config:ICE});
+    peer.on('open', dial);
+    peer.on('error', (err) => {
+      const type = err && err.type;
+      if(type === 'peer-unavailable'){
+        setViewerStatus('Ученик сейчас не на связи — ждём, пока он откроет страницу…', false);
+        scheduleRetry();
+      } else if(type === 'network' || type === 'socket-error' || type === 'server-error'){
+        setViewerStatus('Нет связи с сервером знакомства — пробуем снова…', false);
+        scheduleRetry();
+      } else {
+        setViewerStatus('Ошибка связи (' + (type || 'неизвестная') + ').', false);
+      }
+    });
+    peer.on('disconnected', () => { try{ peer.reconnect(); }catch(e){} });
+  }).catch(() => {
+    setViewerStatus('Не удалось загрузить модуль связи. Проверьте интернет.', false);
+  });
+}
+function leaveViewer(){
+  if(!isViewer) return;
+  isViewer = false;
+  clearTimeout(retryTimer);
+  clearTimeout(dialTimer);
+  if(watchConn){ try{ watchConn.close(); }catch(e){} watchConn = null; }
+  if(peer){ try{ peer.destroy(); }catch(e){} peer = null; }
+  watchHostId = null;
+  lastConJson = null;
+  document.body.classList.remove('viewing');
+  viewerBar.hidden = true;
+  cm.setOption('readOnly', false);
+}
+// Копия обрывает трансляцию: дальше это обычный редактор с чужим кодом.
+forkBtn.onclick = () => {
+  leaveViewer();
+  history.replaceState(null, '', baseUrl());
+  logLine('Это теперь ваша копия — код можно править и запускать.','line-sys','ph ph-copy');
+  cm.focus();
+};
+
+// --- что делать со ссылкой, с которой пришли ---
+async function bootShare(){
+  const hash = location.hash.replace(/^#/,'');
+  const params = new URLSearchParams(hash);
+  const watch = params.get('watch');
+  const code = params.get('code');
+  if(watch && /^[\w-]{4,64}$/.test(watch)){
+    if(isViewer && watch === watchHostId) return;
+    leaveViewer();
+    if(peer && !isViewer) stopLive();
+    startWatch(watch);
+    return;
+  }
+  if(code){
+    leaveViewer();
+    history.replaceState(null, '', baseUrl());
+    try{
+      const text = await unpackCode(code);
+      const name = params.get('n');
+      if(name) setFileName(name.slice(0,64));
+      cm.setValue(text);
+      clearAiMarks();
+      setDirty(false);
+      logLine('Открыт присланный код (снимок ссылки).','line-sys','ph ph-link');
+    }catch(e){
+      logLine('Ссылка повреждена: не удалось прочитать код.','line-err','ph ph-warning');
+    }
+    return;
+  }
+  // Показ был включён до перезагрузки — поднимаем его, чтобы ссылка
+  // у учителя не умирала от обновления страницы.
+  let was = null;
+  try{ was = localStorage.getItem(SHARE_LIVE_KEY); }catch(e){}
+  if(was === '1' && !isViewer && !peer) startLive();
+}
+window.addEventListener('hashchange', () => { bootShare(); });
+
 // init
 setFileName(currentFileName);
 logLine('Нажмите «Запустить», чтобы выполнить код.','line-sys','ph ph-terminal-window');
+bootShare();
 
 // ---------- PWA ----------
 if('serviceWorker' in navigator){
